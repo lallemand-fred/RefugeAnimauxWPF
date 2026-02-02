@@ -1,0 +1,9 @@
+bin/
+obj/
+.vs/
+*.user
+packages/
+*.md
+!README.md
+node_modules/
+.env
