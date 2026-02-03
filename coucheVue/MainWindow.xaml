@@ -6,38 +6,77 @@
         xmlns:local="clr-namespace:RefugeAnimaux"
         mc:Ignorable="d"
         Title="Refuge Animaux" Height="450" Width="800">
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
+    <TabControl>
+        <!-- Onglet Animaux -->
+        <TabItem Header="Animaux">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
 
-        <!-- Titre -->
-        <TextBlock Grid.Row="0" Text="Liste des Animaux" FontSize="20" FontWeight="Bold" Margin="10"/>
+                <TextBlock Grid.Row="0" Text="Liste des Animaux" FontSize="20" FontWeight="Bold" Margin="10"/>
 
-        <!-- DataGrid pour afficher les animaux -->
-        <DataGrid Grid.Row="1"
-                  ItemsSource="{Binding ListeAnimaux}"
-                  SelectedItem="{Binding AnimalSelectionne}"
-                  SelectionChanged="DataGrid_SelectionChanged"
-                  AutoGenerateColumns="False"
-                  IsReadOnly="True"
-                  Margin="10">
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="Identifiant" Binding="{Binding Identifiant}" Width="120"/>
-                <DataGridTextColumn Header="Nom" Binding="{Binding Nom}" Width="150"/>
-                <DataGridTextColumn Header="Type" Binding="{Binding Type}" Width="100"/>
-                <DataGridTextColumn Header="Sexe" Binding="{Binding Sexe}" Width="50"/>
-                <DataGridTextColumn Header="Date Naissance" Binding="{Binding DateNaissance, StringFormat=dd/MM/yyyy}" Width="120"/>
-            </DataGrid.Columns>
-        </DataGrid>
+                <DataGrid Grid.Row="1"
+                          ItemsSource="{Binding ListeAnimaux}"
+                          SelectedItem="{Binding AnimalSelectionne}"
+                          SelectionChanged="DataGrid_SelectionChanged"
+                          AutoGenerateColumns="False"
+                          IsReadOnly="True"
+                          Margin="10">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Identifiant" Binding="{Binding Identifiant}" Width="120"/>
+                        <DataGridTextColumn Header="Nom" Binding="{Binding Nom}" Width="150"/>
+                        <DataGridTextColumn Header="Type" Binding="{Binding Type}" Width="100"/>
+                        <DataGridTextColumn Header="Sexe" Binding="{Binding Sexe}" Width="50"/>
+                        <DataGridTextColumn Header="Date Naissance" Binding="{Binding DateNaissance, StringFormat=dd/MM/yyyy}" Width="120"/>
+                    </DataGrid.Columns>
+                </DataGrid>
 
-        <!-- Boutons -->
-        <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="10">
-            <Button Content="Ajouter un animal" Click="BtnAjouter_Click" Padding="10,5" Margin="0,0,10,0"/>
-            <Button x:Name="btnModifier" Content="Modifier" Click="BtnModifier_Click" Padding="10,5" Margin="0,0,10,0" IsEnabled="False"/>
-            <Button x:Name="btnSupprimer" Content="Supprimer" Click="BtnSupprimer_Click" Padding="10,5" IsEnabled="False"/>
-        </StackPanel>
-    </Grid>
+                <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="10">
+                    <Button Content="Ajouter un animal" Click="BtnAjouter_Click" Padding="10,5" Margin="0,0,10,0"/>
+                    <Button x:Name="btnModifier" Content="Modifier" Click="BtnModifier_Click" Padding="10,5" Margin="0,0,10,0" IsEnabled="False"/>
+                    <Button x:Name="btnSupprimer" Content="Supprimer" Click="BtnSupprimer_Click" Padding="10,5" IsEnabled="False"/>
+                </StackPanel>
+            </Grid>
+        </TabItem>
+
+        <!-- Onglet Contacts -->
+        <TabItem Header="Contacts">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0" Text="Liste des Contacts" FontSize="20" FontWeight="Bold" Margin="10"/>
+
+                <DataGrid Grid.Row="1"
+                          x:Name="dgContacts"
+                          ItemsSource="{Binding ListeContacts}"
+                          SelectedItem="{Binding ContactSelectionne}"
+                          SelectionChanged="DataGridContacts_SelectionChanged"
+                          AutoGenerateColumns="False"
+                          IsReadOnly="True"
+                          Margin="10">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Id" Binding="{Binding Id}" Width="60"/>
+                        <DataGridTextColumn Header="Nom" Binding="{Binding Nom}" Width="130"/>
+                        <DataGridTextColumn Header="Prenom" Binding="{Binding Prenom}" Width="130"/>
+                        <DataGridTextColumn Header="GSM" Binding="{Binding GSM}" Width="110"/>
+                        <DataGridTextColumn Header="Email" Binding="{Binding Email}" Width="180"/>
+                        <DataGridTextColumn Header="Localite" Binding="{Binding Adresse.Localite}" Width="120"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+
+                <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="10">
+                    <Button Content="Ajouter un contact" Click="BtnAjouterContact_Click" Padding="10,5" Margin="0,0,10,0"/>
+                    <Button x:Name="btnModifierContact" Content="Modifier" Click="BtnModifierContact_Click" Padding="10,5" Margin="0,0,10,0" IsEnabled="False"/>
+                    <Button x:Name="btnSupprimerContact" Content="Supprimer" Click="BtnSupprimerContact_Click" Padding="10,5" IsEnabled="False"/>
+                </StackPanel>
+            </Grid>
+        </TabItem>
+    </TabControl>
 </Window>

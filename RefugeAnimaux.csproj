@@ -94,6 +94,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="coucheVue\FormulaireContact.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -118,6 +122,10 @@
     </Compile>
     <Compile Include="coucheVue\FormulaireAnimal.xaml.cs">
       <DependentUpon>FormulaireAnimal.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="coucheVue\FormulaireContact.xaml.cs">
+      <DependentUpon>FormulaireContact.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>

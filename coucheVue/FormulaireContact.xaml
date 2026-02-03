@@ -1,0 +1,74 @@
+<Window x:Class="RefugeAnimaux.coucheVue.FormulaireContact"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Contact" Height="520" Width="500"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize">
+    <Grid Margin="15">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="130"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Id -->
+        <TextBlock Grid.Row="0" Grid.Column="0" Text="Id :" VerticalAlignment="Center" Margin="0,0,0,8"/>
+        <TextBox x:Name="txtId" Grid.Row="0" Grid.Column="1" Margin="0,0,0,8" IsEnabled="False"/>
+
+        <!-- Nom -->
+        <TextBlock Grid.Row="1" Grid.Column="0" Text="Nom :" VerticalAlignment="Center" Margin="0,0,0,8"/>
+        <TextBox x:Name="txtNom" Grid.Row="1" Grid.Column="1" Margin="0,0,0,8"/>
+
+        <!-- Prenom -->
+        <TextBlock Grid.Row="2" Grid.Column="0" Text="Prenom :" VerticalAlignment="Center" Margin="0,0,0,8"/>
+        <TextBox x:Name="txtPrenom" Grid.Row="2" Grid.Column="1" Margin="0,0,0,8"/>
+
+        <!-- Registre National -->
+        <TextBlock Grid.Row="3" Grid.Column="0" Text="Registre National :" VerticalAlignment="Center" Margin="0,0,0,8"/>
+        <TextBox x:Name="txtRegistreNational" Grid.Row="3" Grid.Column="1" Margin="0,0,0,8"/>
+
+        <!-- Rue -->
+        <TextBlock Grid.Row="4" Grid.Column="0" Text="Rue :" VerticalAlignment="Center" Margin="0,0,0,8"/>
+        <TextBox x:Name="txtRue" Grid.Row="4" Grid.Column="1" Margin="0,0,0,8"/>
+
+        <!-- Code Postal -->
+        <TextBlock Grid.Row="5" Grid.Column="0" Text="Code Postal :" VerticalAlignment="Center" Margin="0,0,0,8"/>
+        <TextBox x:Name="txtCodePostal" Grid.Row="5" Grid.Column="1" Margin="0,0,0,8"/>
+
+        <!-- Localite -->
+        <TextBlock Grid.Row="6" Grid.Column="0" Text="Localite :" VerticalAlignment="Center" Margin="0,0,0,8"/>
+        <TextBox x:Name="txtLocalite" Grid.Row="6" Grid.Column="1" Margin="0,0,0,8"/>
+
+        <!-- GSM -->
+        <TextBlock Grid.Row="7" Grid.Column="0" Text="GSM :" VerticalAlignment="Center" Margin="0,0,0,8"/>
+        <TextBox x:Name="txtGSM" Grid.Row="7" Grid.Column="1" Margin="0,0,0,8"/>
+
+        <!-- Telephone -->
+        <TextBlock Grid.Row="8" Grid.Column="0" Text="Telephone :" VerticalAlignment="Center" Margin="0,0,0,8"/>
+        <TextBox x:Name="txtTelephone" Grid.Row="8" Grid.Column="1" Margin="0,0,0,8"/>
+
+        <!-- Email -->
+        <TextBlock Grid.Row="9" Grid.Column="0" Text="Email :" VerticalAlignment="Center" Margin="0,0,0,8"/>
+        <TextBox x:Name="txtEmail" Grid.Row="9" Grid.Column="1" Margin="0,0,0,8"/>
+
+        <!-- Boutons -->
+        <StackPanel Grid.Row="11" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal"
+                    HorizontalAlignment="Right" Margin="0,10,0,0">
+            <Button Content="Enregistrer" Click="BtnEnregistrer_Click" Padding="15,5" Margin="0,0,10,0"/>
+            <Button Content="Annuler" Click="BtnAnnuler_Click" Padding="15,5"/>
+        </StackPanel>
+    </Grid>
+</Window>

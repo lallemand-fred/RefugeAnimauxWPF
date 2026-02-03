@@ -106,5 +106,82 @@ namespace RefugeAnimaux
                 }
             }
         }
+
+        // ============================================================
+        // HANDLERS CONTACTS
+        // ============================================================
+
+        // active/desactive les boutons contacts selon la selection
+        private void DataGridContacts_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            bool contactSelectionne = vueModele.ContactSelectionne != null;
+            btnModifierContact.IsEnabled = contactSelectionne;
+            btnSupprimerContact.IsEnabled = contactSelectionne;
+        }
+
+        private void BtnAjouterContact_Click(object sender, RoutedEventArgs e)
+        {
+            var formulaire = new FormulaireContact();
+            formulaire.Owner = this;
+
+            if (formulaire.ShowDialog() == true)
+            {
+                try
+                {
+                    vueModele.AjouterContact(formulaire.ResultContact);
+                    MessageBox.Show("Contact ajoute !");
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Erreur: {ex.Message}", "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private void BtnModifierContact_Click(object sender, RoutedEventArgs e)
+        {
+            if (vueModele.ContactSelectionne == null) return;
+
+            var formulaire = new FormulaireContact(vueModele.ContactSelectionne);
+            formulaire.Owner = this;
+
+            if (formulaire.ShowDialog() == true)
+            {
+                try
+                {
+                    vueModele.ModifierContact(formulaire.ResultContact);
+                    vueModele.ChargerContacts();
+                    MessageBox.Show("Contact modifie !");
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Erreur: {ex.Message}", "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private void BtnSupprimerContact_Click(object sender, RoutedEventArgs e)
+        {
+            if (vueModele.ContactSelectionne == null) return;
+
+            var result = MessageBox.Show(
+                $"Supprimer le contact '{vueModele.ContactSelectionne.Nom} {vueModele.ContactSelectionne.Prenom}' ?",
+                "Confirmation",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Question);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                try
+                {
+                    vueModele.SupprimerContact(vueModele.ContactSelectionne);
+                    MessageBox.Show("Contact supprime !");
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Erreur: {ex.Message}", "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
     }
 }
