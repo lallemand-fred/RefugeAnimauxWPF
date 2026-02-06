@@ -47,7 +47,88 @@ namespace RefugeAnimaux.coucheAccesBD
             try
             {
                 sqlConn.Open();
-                string query = "SELECT identifiant, nom, type, sexe, date_naissance FROM ANIMAL " + "WHERE date_deces IS NULL ORDER BY nom";
+                // on recup tous les animaux vivants avec leur statut calcule
+                // si derniere sortie > derniere entree -> statut selon raison de sortie
+                // sinon -> au refuge
+                string query = @"
+                    SELECT a.identifiant, a.nom, a.type, a.sexe, a.date_naissance,
+                        CASE
+                            WHEN s.date_sortie IS NOT NULL
+                                 AND (e.date_entree IS NULL OR s.date_sortie >= e.date_entree)
+                            THEN
+                                CASE s.raison
+                                    WHEN 'adoption' THEN 'Adopte'
+                                    WHEN 'famille_accueil' THEN 'Famille accueil'
+                                    WHEN 'retour_proprietaire' THEN 'Retour proprietaire'
+                                    WHEN 'deces_animal' THEN 'Decede'
+                                    ELSE 'Sorti'
+                                END
+                            ELSE 'Au refuge'
+                        END AS statut
+                    FROM ANIMAL a
+                    LEFT JOIN LATERAL (
+                        SELECT raison, date_sortie FROM ANI_SORTIE
+                        WHERE ani_identifiant = a.identifiant
+                        ORDER BY date_sortie DESC LIMIT 1
+                    ) s ON true
+                    LEFT JOIN LATERAL (
+                        SELECT date_entree FROM ANI_ENTREE
+                        WHERE ani_identifiant = a.identifiant
+                        ORDER BY date_entree DESC LIMIT 1
+                    ) e ON true
+                    WHERE a.date_deces IS NULL
+                    ORDER BY a.nom";
+                NpgsqlCommand cmd = new NpgsqlCommand(query, sqlConn);
+                NpgsqlDataReader reader = cmd.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    string identifiant = reader.GetString(0).Trim();
+                    string nom = reader.GetString(1);
+                    string type = reader.GetString(2).Trim();
+                    char sexe = reader.GetString(3).Trim()[0];
+                    DateTime dateNaissance = reader.GetDateTime(4);
+                    string statut = reader.GetString(5);
+
+                    Animal animal = new Animal(identifiant, nom, type, sexe, dateNaissance);
+                    animal.Statut = statut;
+                    animaux.Add(animal);
+                }
+                reader.Close();
+                cmd.Dispose();
+            }
+            catch (Exception ex)
+            {
+                throw new ExceptionAccesBD("Erreur lors de la lecture d'un animal", ex.Message);
+            }
+            finally
+            {
+                if (sqlConn.State == System.Data.ConnectionState.Open)
+                    sqlConn.Close();
+            }
+            return animaux;
+        }
+
+        // retourne les animaux vivants ET presents au refuge
+        // on exclut SEULEMENT ceux dont la derniere sortie >= derniere entree (deja partis)
+        public List<Animal> ListeAnimauxPresents()
+        {
+            List<Animal> animaux = new List<Animal>();
+            try
+            {
+                sqlConn.Open();
+                string query = @"
+                    SELECT a.identifiant, a.nom, a.type, a.sexe, a.date_naissance
+                    FROM ANIMAL a
+                    WHERE a.date_deces IS NULL
+                    AND NOT EXISTS (
+                        SELECT 1
+                        FROM (SELECT MAX(date_sortie) AS max_sortie FROM ANI_SORTIE WHERE ani_identifiant = a.identifiant) s,
+                             (SELECT MAX(date_entree) AS max_entree FROM ANI_ENTREE WHERE ani_identifiant = a.identifiant) e
+                        WHERE s.max_sortie IS NOT NULL
+                        AND (e.max_entree IS NULL OR s.max_sortie >= e.max_entree)
+                    )
+                    ORDER BY a.nom";
                 NpgsqlCommand cmd = new NpgsqlCommand(query, sqlConn);
                 NpgsqlDataReader reader = cmd.ExecuteReader();
 
@@ -67,7 +148,7 @@ namespace RefugeAnimaux.coucheAccesBD
             }
             catch (Exception ex)
             {
-                throw new ExceptionAccesBD("Erreur lors de la lecture d'un animal", ex.Message);
+                throw new ExceptionAccesBD("Erreur lors de la lecture des animaux presents", ex.Message);
             }
             finally
             {
@@ -629,8 +710,10 @@ namespace RefugeAnimaux.coucheAccesBD
                                "VALUES (@animal, @date, @raison, @contact)";
                 NpgsqlCommand cmd = new NpgsqlCommand( query, sqlConn);
 
+                // on colle l'heure actuelle sur la date choisie pour avoir un vrai timestamp
+                DateTime dateAvecHeure = entree.DateEntree.Date + DateTime.Now.TimeOfDay;
                 cmd.Parameters.AddWithValue("@animal", entree.AnimalId);
-                cmd.Parameters.AddWithValue("@date", entree.DateEntree);
+                cmd.Parameters.AddWithValue("@date", dateAvecHeure);
                 cmd.Parameters.AddWithValue("@raison", entree.Raison);
                 cmd.Parameters.AddWithValue("@contact", entree.ContactId);
 
@@ -662,8 +745,10 @@ namespace RefugeAnimaux.coucheAccesBD
                     }
                 }
 
-                // VALIDATION 2 : Vérifier que l'animal est présent au refuge
-                if (!AnimalEstPresent(sortie.AnimalId))
+                // VALIDATION 2 : Vérifier que l'animal est pas deja sorti
+                // AnimalEstPresent retourne false pour les animaux sans entree/sortie,
+                // mais si l'animal existe et est vivant c'est ok pour une sortie
+                if (!AnimalEstPresent(sortie.AnimalId) && AnimalADesSorties(sortie.AnimalId))
                 {
                     throw new ExceptionAccesBD("Impossible d'enregistrer une sortie", "L'animal n'est pas présent au refuge");
                 }
@@ -683,8 +768,10 @@ namespace RefugeAnimaux.coucheAccesBD
                                "VALUES (@animal, @date, @raison, @contact)";
                 NpgsqlCommand cmd = new NpgsqlCommand(query, sqlConn);
 
+                // on colle l'heure actuelle sur la date choisie pour avoir un vrai timestamp
+                DateTime dateAvecHeure = sortie.DateSortie.Date + DateTime.Now.TimeOfDay;
                 cmd.Parameters.AddWithValue("@animal", sortie.AnimalId);
-                cmd.Parameters.AddWithValue("@date", sortie.DateSortie);
+                cmd.Parameters.AddWithValue("@date", dateAvecHeure);
                 cmd.Parameters.AddWithValue("@raison", sortie.Raison);
                 cmd.Parameters.AddWithValue("@contact", sortie.ContactId);
 
@@ -704,6 +791,13 @@ namespace RefugeAnimaux.coucheAccesBD
                 cmd.Dispose();
                 sqlConn.Close();
 
+            }
+            catch(ExceptionAccesBD)
+            {
+                // on laisse passer les erreurs de validation sans les re-emballer
+                if (sqlConn.State == System.Data.ConnectionState.Open)
+                    sqlConn.Close();
+                throw;
             }
             catch(Exception ex)
             {
@@ -1418,10 +1512,10 @@ namespace RefugeAnimaux.coucheAccesBD
 
                 while (reader.Read())
                 {
-                    string animalId = reader.GetString(0);
+                    string animalId = reader.GetString(0).Trim();
                     int contactId = reader.GetInt32(1);
                     DateTime dateDemande = reader.GetDateTime(2);
-                    string statut = reader.GetString(3);
+                    string statut = reader.GetString(3).Trim();
 
                     Adoption adoption = new Adoption(animalId, contactId, dateDemande);
                     adoption.Statut = statut;
@@ -1499,6 +1593,14 @@ namespace RefugeAnimaux.coucheAccesBD
                 cmd.Parameters.AddWithValue("@statut", nouveauStatut);
 
                 lignesAffectees = cmd.ExecuteNonQuery();
+
+                if (lignesAffectees == 0)
+                {
+                    cmd.Dispose();
+                    sqlConn.Close();
+                    throw new ExceptionAccesBD("Erreur mise à jour adoption",
+                        "Aucune adoption trouvée pour cette combinaison animal/date");
+                }
 
                 cmd.Dispose();
                 sqlConn.Close();
@@ -1580,8 +1682,8 @@ namespace RefugeAnimaux.coucheAccesBD
                     {
                         DateTime derniereEntree = reader.GetDateTime(0);
                         DateTime derniereSortie = reader.GetDateTime(1);
-                        // Présent si dernière entrée > dernière sortie
-                        estPresent = derniereEntree > derniereSortie;
+                        // present si derniere entree >= derniere sortie (meme date = au refuge)
+                        estPresent = derniereEntree >= derniereSortie;
                     }
                 }
 
@@ -1596,6 +1698,30 @@ namespace RefugeAnimaux.coucheAccesBD
                 throw new ExceptionAccesBD("Erreur lors de la vérification de présence animal", ex.Message);
             }
             return estPresent;
+        }
+
+        // check si l'animal a au moins une sortie dans ANI_SORTIE
+        private bool AnimalADesSorties(string animalId)
+        {
+            bool aDesSorties = false;
+            try
+            {
+                sqlConn.Open();
+                string query = "SELECT COUNT(*) FROM ANI_SORTIE WHERE ani_identifiant = @id";
+                NpgsqlCommand cmd = new NpgsqlCommand(query, sqlConn);
+                cmd.Parameters.AddWithValue("@id", animalId);
+                int count = Convert.ToInt32(cmd.ExecuteScalar());
+                aDesSorties = count > 0;
+                cmd.Dispose();
+                sqlConn.Close();
+            }
+            catch (Exception ex)
+            {
+                if (sqlConn.State == System.Data.ConnectionState.Open)
+                    sqlConn.Close();
+                throw new ExceptionAccesBD("Erreur verif sorties animal", ex.Message);
+            }
+            return aDesSorties;
         }
 
         // Récupère la raison de la dernière sortie
@@ -1638,7 +1764,7 @@ namespace RefugeAnimaux.coucheAccesBD
             {
                 sqlConn.Open();
                 string query = @"SELECT COUNT(*) FROM ADOPTION
-                                WHERE ani_identifiant = @id AND statut = 'acceptee'";
+                                WHERE ani_identifiant = @id AND LOWER(TRIM(statut)) = 'acceptee'";
 
                 NpgsqlCommand cmd = new NpgsqlCommand(query, sqlConn);
                 cmd.Parameters.AddWithValue("@id", animalId);

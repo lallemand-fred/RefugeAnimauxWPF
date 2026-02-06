@@ -31,11 +31,13 @@
                         <DataGridTextColumn Header="Type" Binding="{Binding Type}" Width="100"/>
                         <DataGridTextColumn Header="Sexe" Binding="{Binding Sexe}" Width="50"/>
                         <DataGridTextColumn Header="Date Naissance" Binding="{Binding DateNaissance, StringFormat=dd/MM/yyyy}" Width="120"/>
+                        <DataGridTextColumn Header="Statut" Binding="{Binding Statut}" Width="140"/>
                     </DataGrid.Columns>
                 </DataGrid>
 
                 <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="10">
-                    <Button Content="Ajouter un animal" Click="BtnAjouter_Click" Padding="10,5" Margin="0,0,10,0"/>
+                    <Button Content="Entree animal" Click="BtnArrivee_Click" Padding="10,5" Margin="0,0,10,0"/>
+                    <Button Content="Sortie animal" Click="BtnSortie_Click" Padding="10,5" Margin="0,0,10,0"/>
                     <Button x:Name="btnModifier" Content="Modifier" Click="BtnModifier_Click" Padding="10,5" Margin="0,0,10,0" IsEnabled="False"/>
                     <Button x:Name="btnSupprimer" Content="Supprimer" Click="BtnSupprimer_Click" Padding="10,5" IsEnabled="False"/>
                 </StackPanel>
@@ -75,6 +77,39 @@
                     <Button Content="Ajouter un contact" Click="BtnAjouterContact_Click" Padding="10,5" Margin="0,0,10,0"/>
                     <Button x:Name="btnModifierContact" Content="Modifier" Click="BtnModifierContact_Click" Padding="10,5" Margin="0,0,10,0" IsEnabled="False"/>
                     <Button x:Name="btnSupprimerContact" Content="Supprimer" Click="BtnSupprimerContact_Click" Padding="10,5" IsEnabled="False"/>
+                </StackPanel>
+            </Grid>
+        </TabItem>
+
+        <!-- Onglet Adoptions -->
+        <TabItem Header="Adoptions">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0" Text="Liste des Demandes d'Adoption" FontSize="20" FontWeight="Bold" Margin="10"/>
+
+                <DataGrid Grid.Row="1"
+                          x:Name="dgAdoptions"
+                          SelectionChanged="DataGridAdoptions_SelectionChanged"
+                          AutoGenerateColumns="False"
+                          IsReadOnly="True"
+                          Margin="10">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Animal" Binding="{Binding AnimalId}" Width="130"/>
+                        <DataGridTextColumn Header="Date demande" Binding="{Binding DateDemande, StringFormat=dd/MM/yyyy}" Width="120"/>
+                        <DataGridTextColumn Header="Statut" Binding="{Binding Statut}" Width="150"/>
+                        <DataGridTextColumn Header="Contact" Binding="{Binding ContactId}" Width="80"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+
+                <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="10">
+                    <Button Content="Nouvelle demande" Click="BtnNouvelleAdoption_Click" Padding="10,5" Margin="0,0,10,0"/>
+                    <Button x:Name="btnModifierAdoption" Content="Modifier statut" Click="BtnModifierAdoption_Click" Padding="10,5" Margin="0,0,10,0" IsEnabled="False"/>
+                    <Button Content="Rafraichir" Click="BtnRafraichirAdoptions_Click" Padding="10,5"/>
                 </StackPanel>
             </Grid>
         </TabItem>

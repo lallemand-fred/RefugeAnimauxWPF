@@ -32,6 +32,9 @@ namespace RefugeAnimaux
             // cree le vue-modele et le connecte a la fenetre
             vueModele = new Vue_Modele();
             this.DataContext = vueModele;
+
+            // charge les adoptions au demarrage
+            ChargerAdoptions();
         }
 
         // active/desactive les boutons selon la selection
@@ -42,17 +45,42 @@ namespace RefugeAnimaux
             btnSupprimer.IsEnabled = animalSelectionne;
         }
 
-        private void BtnAjouter_Click(object sender, RoutedEventArgs e)
+        private void BtnArrivee_Click(object sender, RoutedEventArgs e)
         {
-            var formulaire = new FormulaireAnimal();
+            var formulaire = new FormulaireArrivee(vueModele.ListeAnimaux, vueModele.ListeContacts);
             formulaire.Owner = this;
 
             if (formulaire.ShowDialog() == true)
             {
                 try
                 {
-                    vueModele.AjouterAnimal(formulaire.ResultAnimal);
-                    MessageBox.Show("Animal ajoute !");
+                    vueModele.EnregistrerArrivee(
+                        formulaire.ResultAnimal,
+                        formulaire.EstNouvelAnimal,
+                        formulaire.ResultEntree,
+                        formulaire.NouveauContact
+                    );
+                    MessageBox.Show("Arrivee enregistree !");
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Erreur: {ex.Message}", "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private void BtnSortie_Click(object sender, RoutedEventArgs e)
+        {
+            // on passe que les animaux presents au refuge, pas tous les vivants
+            var formulaire = new FormulaireSortie(vueModele.GetAnimauxPresents(), vueModele.ListeContacts);
+            formulaire.Owner = this;
+
+            if (formulaire.ShowDialog() == true)
+            {
+                try
+                {
+                    vueModele.EnregistrerSortie(formulaire.ResultSortie);
+                    MessageBox.Show("Sortie enregistree !");
                 }
                 catch (Exception ex)
                 {
@@ -181,6 +209,78 @@ namespace RefugeAnimaux
                 {
                     MessageBox.Show($"Erreur: {ex.Message}", "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
+            }
+        }
+
+        // ============================================================
+        // HANDLERS ADOPTIONS
+        // ============================================================
+
+        // adoption selectionnee dans le datagrid
+        private Adoption adoptionSelectionnee;
+
+        private void DataGridAdoptions_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            adoptionSelectionnee = dgAdoptions.SelectedItem as Adoption;
+            btnModifierAdoption.IsEnabled = adoptionSelectionnee != null;
+        }
+
+        private void BtnNouvelleAdoption_Click(object sender, RoutedEventArgs e)
+        {
+            var formulaire = new FormulaireAdoption(vueModele.ListeAnimaux, vueModele.ListeContacts);
+            formulaire.Owner = this;
+
+            if (formulaire.ShowDialog() == true)
+            {
+                try
+                {
+                    vueModele.AjouterAdoption(formulaire.ResultAdoption);
+                    MessageBox.Show("Demande d'adoption enregistree !");
+                    ChargerAdoptions();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Erreur: {ex.Message}", "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private void BtnModifierAdoption_Click(object sender, RoutedEventArgs e)
+        {
+            if (adoptionSelectionnee == null) return;
+
+            var formulaire = new FormulaireAdoption(adoptionSelectionnee, vueModele.ListeAnimaux, vueModele.ListeContacts);
+            formulaire.Owner = this;
+
+            if (formulaire.ShowDialog() == true)
+            {
+                try
+                {
+                    vueModele.ModifierStatutAdoption(formulaire.ResultAdoption);
+                    MessageBox.Show("Statut modifie !");
+                    ChargerAdoptions();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Erreur: {ex.Message}", "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private void BtnRafraichirAdoptions_Click(object sender, RoutedEventArgs e)
+        {
+            ChargerAdoptions();
+        }
+
+        private void ChargerAdoptions()
+        {
+            try
+            {
+                dgAdoptions.ItemsSource = vueModele.ObtenirListeAdoptions();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erreur chargement adoptions: {ex.Message}", "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }

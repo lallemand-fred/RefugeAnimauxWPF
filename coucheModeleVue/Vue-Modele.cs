@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Collections.ObjectModel;
 using RefugeAnimaux.classeMetier;
@@ -157,6 +158,25 @@ namespace RefugeAnimaux.coucheModeleVue
             }
         }
 
+        // retourne que les animaux presents au refuge (pour le formulaire de sortie)
+        public ObservableCollection<Animal> GetAnimauxPresents()
+        {
+            try
+            {
+                var presents = new ObservableCollection<Animal>();
+                var animaux = accesBD.ListeAnimauxPresents();
+                foreach (var animal in animaux)
+                {
+                    presents.Add(animal);
+                }
+                return presents;
+            }
+            catch (ExceptionAccesBD ex)
+            {
+                throw new Exception($"Erreur chargement animaux presents: {ex.Message}", ex);
+            }
+        }
+
         /// <summary>
         /// Charge la liste des contacts depuis la BD
         /// </summary>
@@ -223,6 +243,111 @@ namespace RefugeAnimaux.coucheModeleVue
             catch (ExceptionAccesBD ex)
             {
                 throw new Exception($"Erreur ajout contact: {ex.Message}", ex);
+            }
+        }
+
+        /// <summary>
+        /// Enregistre l'arrivee d'un animal au refuge
+        /// Workflow qui touche plusieurs tables : animal, ani_entree, contact
+        /// </summary>
+        public void EnregistrerArrivee(Animal animal, bool estNouvelAnimal, AnimalEntree entree, Contact nouveauContact)
+        {
+            try
+            {
+                // 1. si nouveau contact, on l'ajoute d'abord pour avoir son ID
+                if (nouveauContact != null)
+                {
+                    int idContact = accesBD.AjouterContact(nouveauContact);
+                    // met a jour le ContactId de l'entree avec le nouvel ID
+                    entree.ContactId = idContact;
+                }
+
+                // 2. si nouvel animal, on l'ajoute
+                if (estNouvelAnimal)
+                {
+                    accesBD.AjouterAnimal(animal);
+                }
+
+                // 3. on ajoute l'entree
+                accesBD.AjouterEntreeAnimal(entree);
+
+                // 4. rafraichit les listes
+                ChargerAnimaux();
+                ChargerContacts();
+            }
+            catch (ExceptionAccesBD ex)
+            {
+                throw new Exception($"Erreur enregistrement arrivee: {ex.Message}", ex);
+            }
+        }
+
+        /// <summary>
+        /// Enregistre la sortie d'un animal du refuge
+        /// AccesBD gere deja la mise a jour de date_deces si raison='deces_animal'
+        /// </summary>
+        public void EnregistrerSortie(AnimalSortie sortie)
+        {
+            try
+            {
+                // AjouterSortieAnimal gere tout : validation presence, ajout sortie, mise a jour date_deces
+                accesBD.AjouterSortieAnimal(sortie);
+
+                // rafraichit la liste des animaux
+                ChargerAnimaux();
+            }
+            catch (ExceptionAccesBD ex)
+            {
+                // on affiche le message + les details pour savoir ce qui plante
+                string msg = ex.Message;
+                string details = ex.GetDetails();
+                if (!string.IsNullOrEmpty(details))
+                    msg += " - " + details;
+                throw new Exception(msg, ex);
+            }
+        }
+
+        /// <summary>
+        /// Ajoute une nouvelle demande d'adoption
+        /// </summary>
+        public void AjouterAdoption(Adoption adoption)
+        {
+            try
+            {
+                accesBD.AjouterAdoption(adoption);
+            }
+            catch (ExceptionAccesBD ex)
+            {
+                throw new Exception($"Erreur ajout adoption: {ex.Message}", ex);
+            }
+        }
+
+        /// <summary>
+        /// Modifie le statut d'une adoption existante
+        /// </summary>
+        public void ModifierStatutAdoption(Adoption adoption)
+        {
+            try
+            {
+                accesBD.UpdateStatutAdoption(adoption.AnimalId, adoption.DateDemande, adoption.Statut);
+            }
+            catch (ExceptionAccesBD ex)
+            {
+                throw new Exception($"Erreur modification statut adoption: {ex.Message}", ex);
+            }
+        }
+
+        /// <summary>
+        /// Retourne la liste de toutes les adoptions
+        /// </summary>
+        public List<Adoption> ObtenirListeAdoptions()
+        {
+            try
+            {
+                return accesBD.ListeAdoptions();
+            }
+            catch (ExceptionAccesBD ex)
+            {
+                throw new Exception($"Erreur lecture adoptions: {ex.Message}", ex);
             }
         }
 

@@ -1,0 +1,82 @@
+<Window x:Class="RefugeAnimaux.coucheVue.FormulaireAdoption"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Demande d'adoption" Height="480" Width="500"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize">
+    <Grid Margin="15">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- GroupBox Animal -->
+        <GroupBox Grid.Row="0" Header="Animal a adopter" Margin="0,0,0,10">
+            <Grid Margin="10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="130"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Column="0" Text="Animal :" VerticalAlignment="Center"/>
+                <ComboBox x:Name="cmbAnimal" Grid.Column="1"/>
+            </Grid>
+        </GroupBox>
+
+        <!-- GroupBox Contact -->
+        <GroupBox Grid.Row="1" Header="Contact adoptant" Margin="0,0,0,10">
+            <Grid Margin="10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="130"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Column="0" Text="Contact :" VerticalAlignment="Center"/>
+                <ComboBox x:Name="cmbContact" Grid.Column="1"/>
+            </Grid>
+        </GroupBox>
+
+        <!-- GroupBox Date -->
+        <GroupBox Grid.Row="2" Header="Date de la demande" Margin="0,0,0,10">
+            <Grid Margin="10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="130"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Column="0" Text="Date :" VerticalAlignment="Center"/>
+                <DatePicker x:Name="dpDateDemande" Grid.Column="1"/>
+            </Grid>
+        </GroupBox>
+
+        <!-- GroupBox Statut (visible seulement en mode modification) -->
+        <GroupBox x:Name="grpStatut" Grid.Row="3" Header="Statut de la demande" Margin="0,0,0,10"
+                  Visibility="Collapsed">
+            <Grid Margin="10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="130"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Column="0" Text="Statut :" VerticalAlignment="Center"/>
+                <ComboBox x:Name="cmbStatut" Grid.Column="1">
+                    <ComboBoxItem Content="demande"/>
+                    <ComboBoxItem Content="acceptee"/>
+                    <ComboBoxItem Content="rejet_environnement"/>
+                    <ComboBoxItem Content="rejet_comportement"/>
+                </ComboBox>
+            </Grid>
+        </GroupBox>
+
+        <!-- Boutons -->
+        <StackPanel Grid.Row="5" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
+            <Button x:Name="btnEnregistrer" Content="Enregistrer" Click="BtnEnregistrer_Click"
+                    Padding="15,5" Margin="0,0,10,0"/>
+            <Button Content="Annuler" Click="BtnAnnuler_Click" Padding="15,5"/>
+        </StackPanel>
+    </Grid>
+</Window>

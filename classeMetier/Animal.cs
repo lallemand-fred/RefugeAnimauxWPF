@@ -23,8 +23,9 @@ namespace RefugeAnimaux.classeMetier
         private DateTime date_deces;        //supérieur ou égal à la date de naissance.
         private string race;
         private string particularites;
-        private List<string> couleurs; 
-        private List<AnimalCompatibilite> compatibilites; 
+        private string statut; // etat actuel: "Au refuge", "Adopte", "Famille accueil", etc.
+        private List<string> couleurs;
+        private List<AnimalCompatibilite> compatibilites;
 
         //constructeur de base
         public Animal()
@@ -39,6 +40,7 @@ namespace RefugeAnimaux.classeMetier
             date_deces = DateTime.MinValue;
             race = "";
             particularites = "";
+            statut = "";
             couleurs = new List<string>();
             compatibilites = new List<AnimalCompatibilite>();
         }
@@ -56,6 +58,7 @@ namespace RefugeAnimaux.classeMetier
             this.date_deces = DateTime.MinValue;
             this.race = "";
             this.particularites = "";
+            this.statut = "";
             this.couleurs = new List<string>();
             this.compatibilites = new List<AnimalCompatibilite>();
         }
@@ -73,6 +76,7 @@ namespace RefugeAnimaux.classeMetier
             this.date_deces = DateTime.MinValue;
             this.race = "";
             this.particularites = "";
+            this.statut = "";
             this.couleurs = new List<string>();
             this.compatibilites = new List<AnimalCompatibilite>();
         }
@@ -89,7 +93,8 @@ namespace RefugeAnimaux.classeMetier
             date_deces= animal.date_deces;
             race = animal.race;
             particularites = animal.particularites;
-            couleurs = new List<string>(animal.couleurs); 
+            statut = animal.statut;
+            couleurs = new List<string>(animal.couleurs);
             compatibilites = new List<AnimalCompatibilite>(animal.compatibilites);
         }
         //Méthode statique pour générer un identifiant avec séquence automatique (réinitialise chaque jour)
@@ -249,6 +254,13 @@ namespace RefugeAnimaux.classeMetier
         {
             get { return this.particularites; }
             set { this.particularites = value; }
+        }
+
+        // statut actuel de l'animal (calcule par la BD)
+        public string Statut
+        {
+            get { return this.statut; }
+            set { this.statut = value ?? ""; }
         }
 
         //Ajoute une couleure de l animal
