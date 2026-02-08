@@ -47,7 +47,7 @@ namespace RefugeAnimaux
 
         private void BtnArrivee_Click(object sender, RoutedEventArgs e)
         {
-            var formulaire = new FormulaireArrivee(vueModele.ListeAnimaux, vueModele.ListeContacts);
+            var formulaire = new FormulaireArrivee(vueModele.ListeAnimaux, vueModele.ListeContacts, vueModele.ObtenirListeAdoptions());
             formulaire.Owner = this;
 
             if (formulaire.ShowDialog() == true)
@@ -71,8 +71,8 @@ namespace RefugeAnimaux
 
         private void BtnSortie_Click(object sender, RoutedEventArgs e)
         {
-            // on passe que les animaux presents au refuge, pas tous les vivants
-            var formulaire = new FormulaireSortie(vueModele.GetAnimauxPresents(), vueModele.ListeContacts);
+            // on passe les animaux presents + contacts + adoptions pour le filtrage
+            var formulaire = new FormulaireSortie(vueModele.GetAnimauxPresents(), vueModele.ListeContacts, vueModele.ObtenirListeAdoptions());
             formulaire.Owner = this;
 
             if (formulaire.ShowDialog() == true)
@@ -84,7 +84,7 @@ namespace RefugeAnimaux
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Erreur: {ex.Message}", "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show($"Erreur lors de l'enregistrement de la sortie: {ex.Message}", "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }

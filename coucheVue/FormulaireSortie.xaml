@@ -22,7 +22,7 @@
                 </Grid.ColumnDefinitions>
 
                 <TextBlock Grid.Column="0" Text="Animal :" VerticalAlignment="Center"/>
-                <ComboBox x:Name="cmbAnimal" Grid.Column="1" MaxDropDownHeight="200"/>
+                <ComboBox x:Name="cmbAnimal" Grid.Column="1" MaxDropDownHeight="200" SelectionChanged="CmbAnimal_SelectionChanged"/>
             </Grid>
         </GroupBox>
 

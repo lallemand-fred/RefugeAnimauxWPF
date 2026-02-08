@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
@@ -11,6 +12,7 @@ namespace RefugeAnimaux.coucheVue
         // collections recues du vue-modele
         private ObservableCollection<Animal> animaux;
         private ObservableCollection<Contact> contacts;
+        private List<Adoption> adoptions;
 
         // resultats a retourner
         public Animal ResultAnimal { get; private set; }
@@ -18,12 +20,13 @@ namespace RefugeAnimaux.coucheVue
         public bool EstNouvelAnimal { get; private set; }
         public Contact NouveauContact { get; private set; }
 
-        public FormulaireArrivee(ObservableCollection<Animal> animaux, ObservableCollection<Contact> contacts)
+        public FormulaireArrivee(ObservableCollection<Animal> animaux, ObservableCollection<Contact> contacts, List<Adoption> adoptions)
         {
             InitializeComponent();
 
             this.animaux = animaux;
             this.contacts = contacts;
+            this.adoptions = adoptions;
 
             // remplit la combobox animaux (format: "Identifiant - Nom (Type)")
             foreach (var animal in animaux)
@@ -112,6 +115,83 @@ namespace RefugeAnimaux.coucheVue
                 cmbContact.Items.Add(item);
                 cmbContact.SelectedItem = item;
             }
+        }
+
+        // quand on change de raison, faut verifier si c'est retour_adoption pour verrouiller le contact
+        private void CmbRaison_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (cmbRaison.SelectedItem == null || cmbContact == null) return;
+
+            string raison = ((ComboBoxItem)cmbRaison.SelectedItem).Content.ToString();
+
+            if (raison == "retour_adoption")
+            {
+                MettreAJourContactRetourAdoption();
+            }
+            else
+            {
+                // on deverrouille le contact et le bouton nouveau contact
+                cmbContact.IsEnabled = true;
+                btnNouveauContact.IsEnabled = true;
+            }
+        }
+
+        // quand on change d'animal existant et que la raison est retour_adoption
+        private void CmbAnimalExistant_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (cmbRaison == null || cmbRaison.SelectedItem == null) return;
+
+            string raison = ((ComboBoxItem)cmbRaison.SelectedItem).Content.ToString();
+            if (raison == "retour_adoption")
+            {
+                MettreAJourContactRetourAdoption();
+            }
+        }
+
+        // cherche l'adoption acceptee pour l'animal et verrouille le contact
+        private void MettreAJourContactRetourAdoption()
+        {
+            // faut un animal existant selectionne
+            if (cmbAnimalExistant.SelectedItem == null)
+            {
+                cmbContact.IsEnabled = true;
+                btnNouveauContact.IsEnabled = true;
+                return;
+            }
+
+            Animal animalSelect = (Animal)((ComboBoxItem)cmbAnimalExistant.SelectedItem).Tag;
+
+            // cherche l'adoption acceptee pour cet animal
+            Adoption adoptionAcceptee = null;
+            foreach (var adoption in adoptions)
+            {
+                if (adoption.AnimalId.Trim() == animalSelect.Identifiant.Trim() &&
+                    adoption.Statut.Trim().ToLower() == "acceptee")
+                {
+                    adoptionAcceptee = adoption;
+                    break;
+                }
+            }
+
+            if (adoptionAcceptee != null)
+            {
+                // on selectionne le contact de l'adoption et on verrouille
+                foreach (ComboBoxItem item in cmbContact.Items)
+                {
+                    Contact c = item.Tag as Contact;
+                    if (c != null && c.Id == adoptionAcceptee.ContactId)
+                    {
+                        cmbContact.SelectedItem = item;
+                        cmbContact.IsEnabled = false;
+                        btnNouveauContact.IsEnabled = false;
+                        return;
+                    }
+                }
+            }
+
+            // pas d'adoption acceptee trouvee, on laisse le choix libre
+            cmbContact.IsEnabled = true;
+            btnNouveauContact.IsEnabled = true;
         }
 
         private void BtnEnregistrer_Click(object sender, RoutedEventArgs e)

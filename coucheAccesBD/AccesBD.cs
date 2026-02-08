@@ -48,34 +48,28 @@ namespace RefugeAnimaux.coucheAccesBD
             {
                 sqlConn.Open();
                 // on recup tous les animaux vivants avec leur statut calcule
-                // si derniere sortie > derniere entree -> statut selon raison de sortie
-                // sinon -> au refuge
+                // si nb sorties >= nb entrees (et au moins 1 sortie) -> statut selon derniere sortie
+                // sinon -> au refuge (plus d'entrees que de sorties = animal present)
                 string query = @"
                     SELECT a.identifiant, a.nom, a.type, a.sexe, a.date_naissance,
                         CASE
-                            WHEN s.date_sortie IS NOT NULL
-                                 AND (e.date_entree IS NULL OR s.date_sortie >= e.date_entree)
+                            WHEN (SELECT COUNT(*) FROM ANI_SORTIE WHERE ani_identifiant = a.identifiant) > 0
+                                 AND (SELECT COUNT(*) FROM ANI_SORTIE WHERE ani_identifiant = a.identifiant)
+                                     >= (SELECT COUNT(*) FROM ANI_ENTREE WHERE ani_identifiant = a.identifiant)
                             THEN
-                                CASE s.raison
+                                (SELECT CASE raison
                                     WHEN 'adoption' THEN 'Adopte'
                                     WHEN 'famille_accueil' THEN 'Famille accueil'
                                     WHEN 'retour_proprietaire' THEN 'Retour proprietaire'
                                     WHEN 'deces_animal' THEN 'Decede'
                                     ELSE 'Sorti'
                                 END
+                                FROM ANI_SORTIE
+                                WHERE ani_identifiant = a.identifiant
+                                ORDER BY date_sortie DESC LIMIT 1)
                             ELSE 'Au refuge'
                         END AS statut
                     FROM ANIMAL a
-                    LEFT JOIN LATERAL (
-                        SELECT raison, date_sortie FROM ANI_SORTIE
-                        WHERE ani_identifiant = a.identifiant
-                        ORDER BY date_sortie DESC LIMIT 1
-                    ) s ON true
-                    LEFT JOIN LATERAL (
-                        SELECT date_entree FROM ANI_ENTREE
-                        WHERE ani_identifiant = a.identifiant
-                        ORDER BY date_entree DESC LIMIT 1
-                    ) e ON true
                     WHERE a.date_deces IS NULL
                     ORDER BY a.nom";
                 NpgsqlCommand cmd = new NpgsqlCommand(query, sqlConn);
@@ -110,7 +104,7 @@ namespace RefugeAnimaux.coucheAccesBD
         }
 
         // retourne les animaux vivants ET presents au refuge
-        // on exclut SEULEMENT ceux dont la derniere sortie >= derniere entree (deja partis)
+        // present = plus d'entrees que de sorties (ou aucune sortie)
         public List<Animal> ListeAnimauxPresents()
         {
             List<Animal> animaux = new List<Animal>();
@@ -121,12 +115,10 @@ namespace RefugeAnimaux.coucheAccesBD
                     SELECT a.identifiant, a.nom, a.type, a.sexe, a.date_naissance
                     FROM ANIMAL a
                     WHERE a.date_deces IS NULL
-                    AND NOT EXISTS (
-                        SELECT 1
-                        FROM (SELECT MAX(date_sortie) AS max_sortie FROM ANI_SORTIE WHERE ani_identifiant = a.identifiant) s,
-                             (SELECT MAX(date_entree) AS max_entree FROM ANI_ENTREE WHERE ani_identifiant = a.identifiant) e
-                        WHERE s.max_sortie IS NOT NULL
-                        AND (e.max_entree IS NULL OR s.max_sortie >= e.max_entree)
+                    AND NOT (
+                        (SELECT COUNT(*) FROM ANI_SORTIE WHERE ani_identifiant = a.identifiant) > 0
+                        AND (SELECT COUNT(*) FROM ANI_SORTIE WHERE ani_identifiant = a.identifiant)
+                            >= (SELECT COUNT(*) FROM ANI_ENTREE WHERE ani_identifiant = a.identifiant)
                     )
                     ORDER BY a.nom";
                 NpgsqlCommand cmd = new NpgsqlCommand(query, sqlConn);
@@ -1654,10 +1646,11 @@ namespace RefugeAnimaux.coucheAccesBD
             try
             {
                 sqlConn.Open();
+                // on compare le nombre d'entrees vs sorties, plus fiable que les dates
                 string query = @"
                     SELECT
-                        (SELECT MAX(date_entree) FROM ANI_ENTREE WHERE ani_identifiant = @id) AS derniere_entree,
-                        (SELECT MAX(date_sortie) FROM ANI_SORTIE WHERE ani_identifiant = @id) AS derniere_sortie";
+                        (SELECT COUNT(*) FROM ANI_ENTREE WHERE ani_identifiant = @id) AS nb_entrees,
+                        (SELECT COUNT(*) FROM ANI_SORTIE WHERE ani_identifiant = @id) AS nb_sorties";
 
                 NpgsqlCommand cmd = new NpgsqlCommand(query, sqlConn);
                 cmd.Parameters.AddWithValue("@id", animalId);
@@ -1665,26 +1658,10 @@ namespace RefugeAnimaux.coucheAccesBD
                 NpgsqlDataReader reader = cmd.ExecuteReader();
                 if (reader.Read())
                 {
-                    bool entreeNull = reader.IsDBNull(0);
-                    bool sortieNull = reader.IsDBNull(1);
-
-                    if (entreeNull && sortieNull)
-                    {
-                        // Aucune entrée ni sortie → pas présent
-                        estPresent = false;
-                    }
-                    else if (!entreeNull && sortieNull)
-                    {
-                        // Entrée existe, pas de sortie → présent
-                        estPresent = true;
-                    }
-                    else if (!entreeNull && !sortieNull)
-                    {
-                        DateTime derniereEntree = reader.GetDateTime(0);
-                        DateTime derniereSortie = reader.GetDateTime(1);
-                        // present si derniere entree >= derniere sortie (meme date = au refuge)
-                        estPresent = derniereEntree >= derniereSortie;
-                    }
+                    int nbEntrees = reader.GetInt32(0);
+                    int nbSorties = reader.GetInt32(1);
+                    // present si plus d'entrees que de sorties
+                    estPresent = nbEntrees > nbSorties;
                 }
 
                 reader.Close();

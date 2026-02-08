@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
@@ -11,18 +12,20 @@ namespace RefugeAnimaux.coucheVue
         // collections recues du vue-modele
         private ObservableCollection<Animal> animaux;
         private ObservableCollection<Contact> contacts;
+        private List<Adoption> adoptions;
 
         // resultats a retourner
         public Animal ResultAnimal { get; private set; }
         public AnimalSortie ResultSortie { get; private set; }
         public DateTime? DateDeces { get; private set; }
 
-        public FormulaireSortie(ObservableCollection<Animal> animaux, ObservableCollection<Contact> contacts)
+        public FormulaireSortie(ObservableCollection<Animal> animaux, ObservableCollection<Contact> contacts, List<Adoption> adoptions)
         {
             InitializeComponent();
 
             this.animaux = animaux;
             this.contacts = contacts;
+            this.adoptions = adoptions;
 
             // remplit la combobox animaux (format: "Identifiant - Nom (Type)")
             foreach (var animal in animaux)
@@ -34,8 +37,7 @@ namespace RefugeAnimaux.coucheVue
                 });
             }
 
-            // remplit les combobox contacts (format: "Nom Prenom")
-            RemplirComboContacts(cmbContactAdoption);
+            // remplit les combobox contacts sauf adoption (celle-la est geree dynamiquement)
             RemplirComboContacts(cmbContactFamille);
             RemplirComboContacts(cmbContactProprietaire);
 
@@ -55,6 +57,67 @@ namespace RefugeAnimaux.coucheVue
             }
         }
 
+        // quand on change d'animal, faut mettre a jour le contact adoption si besoin
+        private void CmbAnimal_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (rbAdoption.IsChecked == true)
+            {
+                MettreAJourContactAdoption();
+            }
+        }
+
+        // cherche l'adoption acceptee pour l'animal et verrouille le bon contact
+        private void MettreAJourContactAdoption()
+        {
+            cmbContactAdoption.Items.Clear();
+            cmbContactAdoption.IsEnabled = true;
+
+            if (cmbAnimal.SelectedItem == null) return;
+
+            Animal animalSelect = (Animal)((ComboBoxItem)cmbAnimal.SelectedItem).Tag;
+
+            // cherche l'adoption acceptee pour cet animal
+            Adoption adoptionAcceptee = null;
+            foreach (var adoption in adoptions)
+            {
+                if (adoption.AnimalId.Trim() == animalSelect.Identifiant.Trim() &&
+                    adoption.Statut.Trim().ToLower() == "acceptee")
+                {
+                    adoptionAcceptee = adoption;
+                    break;
+                }
+            }
+
+            if (adoptionAcceptee != null)
+            {
+                // on met que le contact de l'adoption acceptee et on verrouille
+                foreach (var contact in contacts)
+                {
+                    if (contact.Id == adoptionAcceptee.ContactId)
+                    {
+                        cmbContactAdoption.Items.Add(new ComboBoxItem
+                        {
+                            Content = $"{contact.Nom} {contact.Prenom}",
+                            Tag = contact
+                        });
+                        cmbContactAdoption.SelectedIndex = 0;
+                        cmbContactAdoption.IsEnabled = false;
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                // pas d'adoption acceptee, combo vide (AccesBD bloquera de toute facon)
+                // on met un message pour que l'utilisateur comprenne
+                cmbContactAdoption.Items.Add(new ComboBoxItem
+                {
+                    Content = "Aucune adoption acceptee",
+                    IsEnabled = false
+                });
+            }
+        }
+
         private void RbRaison_Checked(object sender, RoutedEventArgs e)
         {
             // check si les controles sont initialises
@@ -70,6 +133,8 @@ namespace RefugeAnimaux.coucheVue
             if (rbAdoption.IsChecked == true)
             {
                 cmbContactAdoption.Visibility = Visibility.Visible;
+                // filtre le contact selon l'adoption acceptee
+                MettreAJourContactAdoption();
             }
             else if (rbFamilleAccueil.IsChecked == true)
             {

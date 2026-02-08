@@ -63,7 +63,7 @@
                 <TextBlock x:Name="lblAnimalExistant" Grid.Row="1" Grid.Column="0" Text="Animal :"
                            VerticalAlignment="Center" Margin="0,0,0,8" Visibility="Collapsed"/>
                 <ComboBox x:Name="cmbAnimalExistant" Grid.Row="1" Grid.Column="1" Margin="0,0,0,8"
-                          Visibility="Collapsed"/>
+                          Visibility="Collapsed" SelectionChanged="CmbAnimalExistant_SelectionChanged"/>
             </Grid>
         </GroupBox>
 
@@ -97,7 +97,8 @@
 
                 <TextBlock Grid.Row="0" Grid.Column="0" Text="Raison :"
                            VerticalAlignment="Center" Margin="0,0,0,8"/>
-                <ComboBox x:Name="cmbRaison" Grid.Row="0" Grid.Column="1" Margin="0,0,0,8">
+                <ComboBox x:Name="cmbRaison" Grid.Row="0" Grid.Column="1" Margin="0,0,0,8"
+                          SelectionChanged="CmbRaison_SelectionChanged">
                     <ComboBoxItem Content="abandon"/>
                     <ComboBoxItem Content="errant"/>
                     <ComboBoxItem Content="deces_proprietaire"/>
