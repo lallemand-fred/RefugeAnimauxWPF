@@ -1733,6 +1733,59 @@ namespace RefugeAnimaux.coucheAccesBD
             return raison;
         }
 
+        // supprime une adoption (par animal + date_demande = cle primaire)
+        public int SupprimerAdoption(string animalId, DateTime dateDemande)
+        {
+            int lignesAffectees = 0;
+            try
+            {
+                sqlConn.Open();
+                string query = "DELETE FROM ADOPTION WHERE ani_identifiant = @animal AND date_demande = @date";
+                NpgsqlCommand cmd = new NpgsqlCommand(query, sqlConn);
+                cmd.Parameters.AddWithValue("@animal", animalId);
+                cmd.Parameters.AddWithValue("@date", dateDemande);
+
+                lignesAffectees = cmd.ExecuteNonQuery();
+                cmd.Dispose();
+            }
+            catch (Exception ex)
+            {
+                throw new ExceptionAccesBD("Erreur suppression adoption", ex.Message);
+            }
+            finally
+            {
+                if (sqlConn.State == System.Data.ConnectionState.Open)
+                    sqlConn.Close();
+            }
+            return lignesAffectees;
+        }
+
+        // vire les adoptions orphelines (animal ou contact supprime de la BD)
+        public int NettoyerAdoptionsOrphelines()
+        {
+            int lignesAffectees = 0;
+            try
+            {
+                sqlConn.Open();
+                string query = @"DELETE FROM ADOPTION
+                                WHERE ani_identifiant NOT IN (SELECT identifiant FROM ANIMAL)
+                                OR adop_contact NOT IN (SELECT contact_identifiant FROM CONTACT)";
+                NpgsqlCommand cmd = new NpgsqlCommand(query, sqlConn);
+                lignesAffectees = cmd.ExecuteNonQuery();
+                cmd.Dispose();
+            }
+            catch (Exception ex)
+            {
+                throw new ExceptionAccesBD("Erreur nettoyage adoptions orphelines", ex.Message);
+            }
+            finally
+            {
+                if (sqlConn.State == System.Data.ConnectionState.Open)
+                    sqlConn.Close();
+            }
+            return lignesAffectees;
+        }
+
         // Vérifie si une adoption acceptée existe pour l'animal
         private bool AdoptionAccepteeExiste(string animalId)
         {

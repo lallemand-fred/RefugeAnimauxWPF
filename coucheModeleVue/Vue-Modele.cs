@@ -351,6 +351,32 @@ namespace RefugeAnimaux.coucheModeleVue
             }
         }
 
+        // supprime une adoption manuellement
+        public void SupprimerAdoption(Adoption adoption)
+        {
+            try
+            {
+                accesBD.SupprimerAdoption(adoption.AnimalId, adoption.DateDemande);
+            }
+            catch (ExceptionAccesBD ex)
+            {
+                throw new Exception($"Erreur suppression adoption: {ex.Message}", ex);
+            }
+        }
+
+        // nettoie les adoptions orphelines (animal ou contact supprime)
+        public int NettoyerAdoptionsOrphelines()
+        {
+            try
+            {
+                return accesBD.NettoyerAdoptionsOrphelines();
+            }
+            catch (ExceptionAccesBD ex)
+            {
+                throw new Exception($"Erreur nettoyage adoptions: {ex.Message}", ex);
+            }
+        }
+
         // ============================================================
         // METHODES DE MODIFICATION
         // ============================================================

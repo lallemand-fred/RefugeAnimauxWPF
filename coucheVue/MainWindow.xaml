@@ -109,6 +109,7 @@
                 <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="10">
                     <Button Content="Nouvelle demande" Click="BtnNouvelleAdoption_Click" Padding="10,5" Margin="0,0,10,0"/>
                     <Button x:Name="btnModifierAdoption" Content="Modifier statut" Click="BtnModifierAdoption_Click" Padding="10,5" Margin="0,0,10,0" IsEnabled="False"/>
+                    <Button x:Name="btnSupprimerAdoption" Content="Supprimer" Click="BtnSupprimerAdoption_Click" Padding="10,5" Margin="0,0,10,0" IsEnabled="False"/>
                     <Button Content="Rafraichir" Click="BtnRafraichirAdoptions_Click" Padding="10,5"/>
                 </StackPanel>
             </Grid>

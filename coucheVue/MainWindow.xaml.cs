@@ -223,6 +223,7 @@ namespace RefugeAnimaux
         {
             adoptionSelectionnee = dgAdoptions.SelectedItem as Adoption;
             btnModifierAdoption.IsEnabled = adoptionSelectionnee != null;
+            btnSupprimerAdoption.IsEnabled = adoptionSelectionnee != null;
         }
 
         private void BtnNouvelleAdoption_Click(object sender, RoutedEventArgs e)
@@ -267,6 +268,31 @@ namespace RefugeAnimaux
             }
         }
 
+        private void BtnSupprimerAdoption_Click(object sender, RoutedEventArgs e)
+        {
+            if (adoptionSelectionnee == null) return;
+
+            var result = MessageBox.Show(
+                $"Supprimer la demande d'adoption pour l'animal '{adoptionSelectionnee.AnimalId}' ?",
+                "Confirmation",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Question);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                try
+                {
+                    vueModele.SupprimerAdoption(adoptionSelectionnee);
+                    MessageBox.Show("Demande d'adoption supprimee !");
+                    ChargerAdoptions();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Erreur: {ex.Message}", "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
         private void BtnRafraichirAdoptions_Click(object sender, RoutedEventArgs e)
         {
             ChargerAdoptions();
@@ -276,6 +302,14 @@ namespace RefugeAnimaux
         {
             try
             {
+                // nettoie les adoptions orphelines avant de charger
+                int supprimees = vueModele.NettoyerAdoptionsOrphelines();
+                if (supprimees > 0)
+                {
+                    MessageBox.Show($"{supprimees} adoption(s) orpheline(s) supprimee(s) (animal ou contact inexistant).",
+                        "Nettoyage", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+
                 dgAdoptions.ItemsSource = vueModele.ObtenirListeAdoptions();
             }
             catch (Exception ex)
