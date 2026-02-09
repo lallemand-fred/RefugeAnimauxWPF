@@ -14,6 +14,8 @@ namespace RefugeAnimaux.classeMetier
         private string type_nom; // nom du type (chat, chien, poney, etc.) récupéré depuis COMPATIBILITE
         private bool valeur; // true=compatible, false=pas compatible
         private string description; // optionnel
+        // ref typee pour avoir acces a l'objet complet
+        private Animal animal;
 
         //constructeur de base
         public AnimalCompatibilite()
@@ -55,6 +57,17 @@ namespace RefugeAnimaux.classeMetier
             this.description = description;
         }
 
+        // constructeur type (objet complet - pour les vues)
+        public AnimalCompatibilite(Animal animal, int compType, string typeNom, bool valeur, string description)
+        {
+            this.animal = animal;
+            this.ani_identifiant = animal.Identifiant;
+            this.comp_type = compType;
+            this.type_nom = typeNom;
+            this.valeur = valeur;
+            this.description = description;
+        }
+
         //constructeur copie
         public AnimalCompatibilite(AnimalCompatibilite comp)
         {
@@ -63,6 +76,7 @@ namespace RefugeAnimaux.classeMetier
             this.type_nom = comp.type_nom;
             this.valeur = comp.valeur;
             this.description = comp.description;
+            this.animal = comp.animal;
         }
 
         //Propriétés - Clés primaires
@@ -97,6 +111,13 @@ namespace RefugeAnimaux.classeMetier
         {
             get { return this.description; }
             set { this.description = value; }
+        }
+
+        // ref typee - donne acces a l'objet complet (peut etre null si cree depuis BD)
+        public Animal Animal
+        {
+            get { return this.animal; }
+            set { this.animal = value; }
         }
 
         //Méthode métier

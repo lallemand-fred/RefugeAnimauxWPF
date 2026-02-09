@@ -99,10 +99,12 @@
                           IsReadOnly="True"
                           Margin="10">
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="Animal" Binding="{Binding AnimalId}" Width="130"/>
+                        <DataGridTextColumn Header="Animal" Binding="{Binding Animal.Nom}" Width="130"/>
+                        <DataGridTextColumn Header="Type" Binding="{Binding Animal.Type}" Width="80"/>
                         <DataGridTextColumn Header="Date demande" Binding="{Binding DateDemande, StringFormat=dd/MM/yyyy}" Width="120"/>
                         <DataGridTextColumn Header="Statut" Binding="{Binding Statut}" Width="150"/>
-                        <DataGridTextColumn Header="Contact" Binding="{Binding ContactId}" Width="80"/>
+                        <DataGridTextColumn Header="Contact" Binding="{Binding Contact.Nom}" Width="120"/>
+                        <DataGridTextColumn Header="Prenom" Binding="{Binding Contact.Prenom}" Width="120"/>
                     </DataGrid.Columns>
                 </DataGrid>
 

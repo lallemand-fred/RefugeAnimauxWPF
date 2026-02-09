@@ -183,7 +183,7 @@ namespace RefugeAnimaux.coucheVue
 
                 DateTime dateSortie = dpDateSortie.SelectedDate.Value;
                 string raison = "";
-                int contactId = 0;
+                Contact contactSortie = null;
                 DateDeces = null;
 
                 // selon la raison, on recup le contact et on valide
@@ -196,7 +196,7 @@ namespace RefugeAnimaux.coucheVue
                             MessageBoxButton.OK, MessageBoxImage.Warning);
                         return;
                     }
-                    contactId = ((Contact)((ComboBoxItem)cmbContactAdoption.SelectedItem).Tag).Id;
+                    contactSortie = (Contact)((ComboBoxItem)cmbContactAdoption.SelectedItem).Tag;
                 }
                 else if (rbFamilleAccueil.IsChecked == true)
                 {
@@ -207,21 +207,13 @@ namespace RefugeAnimaux.coucheVue
                             MessageBoxButton.OK, MessageBoxImage.Warning);
                         return;
                     }
-                    contactId = ((Contact)((ComboBoxItem)cmbContactFamille.SelectedItem).Tag).Id;
+                    contactSortie = (Contact)((ComboBoxItem)cmbContactFamille.SelectedItem).Tag;
                 }
                 else if (rbDeces.IsChecked == true)
                 {
                     raison = "deces_animal";
-                    // pas de contact pour un deces, on met 0
-                    // mais AnimalSortie.ContactId refuse 0... faut voir
-                    // en fait AccesBD gere ca, on va mettre un contact fictif ou gerer dans AccesBD
-                    // pour l'instant on va demander un contact quand meme (celui qui a constate le deces)
                     DateDeces = dateSortie;
-
-                    // on met contactId = 1 par defaut (le refuge) ou on demande pas
-                    // vu que la validation de AnimalSortie refuse 0, on va devoir adapter
-                    // pour l'instant, mettons qu'on demande pas et on gere dans le constructeur
-                    contactId = 1; // contact refuge par defaut
+                    // pas de contact pour un deces
                 }
                 else if (rbRetourProprietaire.IsChecked == true)
                 {
@@ -232,11 +224,14 @@ namespace RefugeAnimaux.coucheVue
                             MessageBoxButton.OK, MessageBoxImage.Warning);
                         return;
                     }
-                    contactId = ((Contact)((ComboBoxItem)cmbContactProprietaire.SelectedItem).Tag).Id;
+                    contactSortie = (Contact)((ComboBoxItem)cmbContactProprietaire.SelectedItem).Tag;
                 }
 
-                // cree la sortie
-                ResultSortie = new AnimalSortie(ResultAnimal.Identifiant, dateSortie, raison, contactId);
+                // constructeur type si contact dispo, sinon IDs (deces = pas de contact)
+                if (contactSortie != null)
+                    ResultSortie = new AnimalSortie(ResultAnimal, dateSortie, raison, contactSortie);
+                else
+                    ResultSortie = new AnimalSortie(ResultAnimal.Identifiant, dateSortie, raison, 1);
 
                 this.DialogResult = true;
             }

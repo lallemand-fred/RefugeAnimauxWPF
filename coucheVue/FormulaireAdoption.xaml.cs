@@ -183,15 +183,14 @@ namespace RefugeAnimaux.coucheVue
 
                     string nouveauStatut = ((ComboBoxItem)cmbStatut.SelectedItem).Content.ToString();
 
-                    // cree une nouvelle adoption avec le meme animal/date mais nouveau statut
-                    ResultAdoption = new Adoption(adoptionOriginal.AnimalId, adoptionOriginal.ContactId, adoptionOriginal.DateDemande);
+                    // constructeur type avec objets complets
+                    ResultAdoption = new Adoption(animal, contact, adoptionOriginal.DateDemande);
                     ResultAdoption.Statut = nouveauStatut;
                 }
                 else
                 {
-                    // mode ajout : cree une nouvelle demande (statut = "demande" par defaut)
-                    ResultAdoption = new Adoption(animal.Identifiant, contact.Id, dateDemande);
-                    ResultAdoption.Statut = "demande";
+                    // mode ajout : constructeur type avec objets complets
+                    ResultAdoption = new Adoption(animal, contact, dateDemande);
                 }
 
                 this.DialogResult = true;

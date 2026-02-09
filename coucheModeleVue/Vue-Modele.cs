@@ -343,7 +343,33 @@ namespace RefugeAnimaux.coucheModeleVue
         {
             try
             {
-                return accesBD.ListeAdoptions();
+                var adoptions = accesBD.ListeAdoptions();
+
+                // remplit les refs typees depuis les listes en memoire
+                foreach (var adoption in adoptions)
+                {
+                    // cherche l'animal correspondant
+                    foreach (var animal in listeAnimaux)
+                    {
+                        if (animal.Identifiant == adoption.AnimalId)
+                        {
+                            adoption.Animal = animal;
+                            break;
+                        }
+                    }
+
+                    // cherche le contact correspondant
+                    foreach (var contact in listeContacts)
+                    {
+                        if (contact.Id == adoption.ContactId)
+                        {
+                            adoption.Contact = contact;
+                            break;
+                        }
+                    }
+                }
+
+                return adoptions;
             }
             catch (ExceptionAccesBD ex)
             {

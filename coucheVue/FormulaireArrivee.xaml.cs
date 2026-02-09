@@ -278,15 +278,14 @@ namespace RefugeAnimaux.coucheVue
                     return;
                 }
 
-                // recup le contact selectionne
+                // recup le contact selectionne (nouveau ou existant)
                 Contact contactSelectionne = (Contact)((ComboBoxItem)cmbContact.SelectedItem).Tag;
+                Contact contactPourEntree = NouveauContact != null ? NouveauContact : contactSelectionne;
                 string raison = ((ComboBoxItem)cmbRaison.SelectedItem).Content.ToString();
                 DateTime dateEntree = dpDateEntree.SelectedDate.Value;
 
-                // cree l'entree
-                // on met ContactId a 0 pour l'instant, Vue-Modele le mettra a jour si nouveau contact
-                int contactId = NouveauContact != null ? 0 : contactSelectionne.Id;
-                ResultEntree = new AnimalEntree(ResultAnimal.Identifiant, dateEntree, raison, contactId);
+                // constructeur type avec objets complets
+                ResultEntree = new AnimalEntree(ResultAnimal, dateEntree, raison, contactPourEntree);
 
                 this.DialogResult = true;
             }

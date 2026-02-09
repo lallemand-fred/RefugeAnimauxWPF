@@ -13,9 +13,12 @@ namespace RefugeAnimaux.classeMetier
         private DateTime date_debut;
         private DateTime date_fin;
         private int fa_contact;
+        // refs typees pour avoir acces aux objets complets
+        private Animal animal;
+        private Contact contact;
 
         //constructeur de base
-        public FamilleAccueil() 
+        public FamilleAccueil()
         {
             fa_ani_identifiant = "";
             date_debut = DateTime.Now;
@@ -23,14 +26,26 @@ namespace RefugeAnimaux.classeMetier
             fa_contact = 0;
         }
 
-        //Constructer parametre
-        public FamilleAccueil(string animalId, int contactId,DateTime debut)
+        //Constructer parametre (IDs - pour AccesBD)
+        public FamilleAccueil(string animalId, int contactId, DateTime debut)
         {
             this.fa_ani_identifiant= animalId;
             this.fa_contact = contactId;
             this.date_debut = debut;
             this.date_fin = DateTime.MinValue;
         }
+
+        // constructeur types (objets complets - pour les vues)
+        public FamilleAccueil(Animal animal, Contact contact, DateTime debut)
+        {
+            this.animal = animal;
+            this.fa_ani_identifiant = animal.Identifiant;
+            this.contact = contact;
+            this.fa_contact = contact.Id;
+            this.date_debut = debut;
+            this.date_fin = DateTime.MinValue;
+        }
+
         // Constructeur copie
         public FamilleAccueil(FamilleAccueil fami)
         {
@@ -38,6 +53,8 @@ namespace RefugeAnimaux.classeMetier
             date_debut = fami.date_debut;
             date_fin = fami.date_fin;
             fa_contact = fami.fa_contact;
+            animal = fami.animal;
+            contact = fami.contact;
         }
 
         //Propriétés 
@@ -60,6 +77,19 @@ namespace RefugeAnimaux.classeMetier
         {
             get { return this.date_debut; }
             private set { this.date_debut = value; }
+        }
+
+        // refs typees - donne acces a l'objet complet (peut etre null si cree depuis BD)
+        public Animal Animal
+        {
+            get { return this.animal; }
+            set { this.animal = value; }
+        }
+
+        public Contact Contact
+        {
+            get { return this.contact; }
+            set { this.contact = value; }
         }
 
         public DateTime DateFin

@@ -12,9 +12,12 @@ namespace RefugeAnimaux.classeMetier
         private DateTime date_sortie;
         private string raison;
         private int sortie_contact;
+        // refs typees pour avoir acces aux objets complets
+        private Animal animal;
+        private Contact contact;
 
         //constructeur defaut
-        public AnimalSortie() 
+        public AnimalSortie()
         {
             ani_identifiant = "";
             date_sortie = DateTime.Now;
@@ -22,13 +25,24 @@ namespace RefugeAnimaux.classeMetier
             sortie_contact = 0;
         }
 
-        //constructeur paramètres
+        //constructeur paramètres (IDs - pour AccesBD)
         public AnimalSortie(string animalId, DateTime dateSortie, string raison, int contactId)
         {
             this.ani_identifiant= animalId;
             this.date_sortie= dateSortie;
             this.raison= raison;
             this.sortie_contact = contactId;
+        }
+
+        // constructeur types (objets complets - pour les vues)
+        public AnimalSortie(Animal animal, DateTime dateSortie, string raison, Contact contact)
+        {
+            this.animal = animal;
+            this.ani_identifiant = animal.Identifiant;
+            this.date_sortie = dateSortie;
+            this.raison = raison;
+            this.contact = contact;
+            this.sortie_contact = contact.Id;
         }
 
         //constructeur copie
@@ -38,6 +52,8 @@ namespace RefugeAnimaux.classeMetier
             date_sortie= sortie.date_sortie;
             raison = sortie.raison;
             sortie_contact= sortie.sortie_contact;
+            animal = sortie.animal;
+            contact = sortie.contact;
         }
 
         //Propriétés - Clés primaires
@@ -82,6 +98,20 @@ namespace RefugeAnimaux.classeMetier
                 this.sortie_contact = value;
             }
         }
+
+        // refs typees - donne acces a l'objet complet (peut etre null si cree depuis BD)
+        public Animal Animal
+        {
+            get { return this.animal; }
+            set { this.animal = value; }
+        }
+
+        public Contact Contact
+        {
+            get { return this.contact; }
+            set { this.contact = value; }
+        }
+
         public override string ToString()
         {
             return ani_identifiant + ", " + date_sortie.ToShortDateString() + ", " + raison;

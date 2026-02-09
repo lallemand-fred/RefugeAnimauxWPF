@@ -12,6 +12,10 @@ namespace RefugeAnimaux.classeMetier
         private DateTime date_entree;
         private string raison;
         private int entree_contact;
+        // refs typees pour avoir acces aux objets complets
+        private Animal animal;
+        private Contact contact;
+
         //Construct base qui initialise
         public AnimalEntree()
         {
@@ -21,21 +25,35 @@ namespace RefugeAnimaux.classeMetier
             entree_contact = 0;
         }
 
-        // construct paramètre
-        public AnimalEntree(string animalId, DateTime dateEntree, string raison,int contactId) 
+        // construct paramètre (IDs - pour AccesBD)
+        public AnimalEntree(string animalId, DateTime dateEntree, string raison, int contactId)
         {
             this.ani_identifiant= animalId;
             this.date_entree = dateEntree;
             this.raison = raison;
             this.entree_contact = contactId;
         }
+
+        // constructeur types (objets complets - pour les vues)
+        public AnimalEntree(Animal animal, DateTime dateEntree, string raison, Contact contact)
+        {
+            this.animal = animal;
+            this.ani_identifiant = animal.Identifiant;
+            this.date_entree = dateEntree;
+            this.raison = raison;
+            this.contact = contact;
+            this.entree_contact = contact.Id;
+        }
+
         //constructeur copie
-        public AnimalEntree (AnimalEntree entree) 
-        { 
+        public AnimalEntree (AnimalEntree entree)
+        {
             ani_identifiant = entree.ani_identifiant;
             date_entree= entree.date_entree;
             raison = entree.raison;
             entree_contact= entree.entree_contact;
+            animal = entree.animal;
+            contact = entree.contact;
         }
         
         //Propriétés 
@@ -81,6 +99,19 @@ namespace RefugeAnimaux.classeMetier
                     throw new ArgumentException("Le ContactId ne peut pas être vide ou négatif.", nameof(value));
                 this.entree_contact = value;
             }
+        }
+
+        // refs typees - donne acces a l'objet complet (peut etre null si cree depuis BD)
+        public Animal Animal
+        {
+            get { return this.animal; }
+            set { this.animal = value; }
+        }
+
+        public Contact Contact
+        {
+            get { return this.contact; }
+            set { this.contact = value; }
         }
 
         // Affiche

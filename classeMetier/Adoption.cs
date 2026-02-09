@@ -12,6 +12,9 @@ namespace RefugeAnimaux.classeMetier
         private DateTime date_demande;
         private string statut;
         private int adop_contact;
+        // refs typees pour avoir acces aux objets complets
+        private Animal animal;
+        private Contact contact;
 
 
         //constucteur défaut
@@ -22,11 +25,21 @@ namespace RefugeAnimaux.classeMetier
             statut = "";
             adop_contact = 0;
         }
-        //consstructeur paramètres
+        //consstructeur paramètres (IDs - pour AccesBD)
         public Adoption(string animalId, int contactId, DateTime date)
         {
             this.ani_identifiant = animalId;
             this.adop_contact = contactId;
+            this.date_demande = date;
+            this.statut = "demande";
+        }
+        // constructeur types (objets complets - pour les vues)
+        public Adoption(Animal animal, Contact contact, DateTime date)
+        {
+            this.animal = animal;
+            this.ani_identifiant = animal.Identifiant;
+            this.contact = contact;
+            this.adop_contact = contact.Id;
             this.date_demande = date;
             this.statut = "demande";
         }
@@ -37,6 +50,8 @@ namespace RefugeAnimaux.classeMetier
             date_demande = adoption.date_demande;
             statut = adoption.statut;
             adop_contact = adoption.adop_contact;
+            animal = adoption.animal;
+            contact = adoption.contact;
         }
         //Propriétés
         
@@ -81,6 +96,20 @@ namespace RefugeAnimaux.classeMetier
                 this.adop_contact = value;
             }
         }
+
+        // refs typees - donne acces a l'objet complet (peut etre null si cree depuis BD)
+        public Animal Animal
+        {
+            get { return this.animal; }
+            set { this.animal = value; }
+        }
+
+        public Contact Contact
+        {
+            get { return this.contact; }
+            set { this.contact = value; }
+        }
+
         //affiche l adoption
         public override string ToString()
         {
