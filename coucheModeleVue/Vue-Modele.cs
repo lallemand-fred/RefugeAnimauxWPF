@@ -493,6 +493,84 @@ namespace RefugeAnimaux.coucheModeleVue
         }
 
         // ============================================================
+        // METHODES VACCINATION
+        // ============================================================
+
+        // recup les vaccinations d'un animal + remplit la ref typee Animal
+        public List<Vaccination> ObtenirVaccinationsAnimal(string animalId)
+        {
+            try
+            {
+                var vaccinations = accesBD.ListeVaccinationsAnimal(animalId);
+
+                // cherche l'animal pour remplir la ref typee
+                Animal animal = null;
+                foreach (var a in listeAnimaux)
+                {
+                    if (a.Identifiant == animalId)
+                    {
+                        animal = a;
+                        break;
+                    }
+                }
+
+                if (animal != null)
+                {
+                    foreach (var vac in vaccinations)
+                    {
+                        vac.Animal = animal;
+                    }
+                }
+
+                return vaccinations;
+            }
+            catch (ExceptionAccesBD ex)
+            {
+                throw new Exception($"Erreur lecture vaccinations: {ex.Message}", ex);
+            }
+        }
+
+        // ajoute une vaccination
+        public void AjouterVaccination(Vaccination vac)
+        {
+            try
+            {
+                accesBD.AjouterVaccination(vac);
+            }
+            catch (ExceptionAccesBD ex)
+            {
+                throw new Exception($"Erreur ajout vaccination: {ex.Message}", ex);
+            }
+        }
+
+        // modifie une vaccination (delete ancien + insert nouveau, vu que tout est PK)
+        public void ModifierVaccination(Vaccination ancienne, Vaccination nouvelle)
+        {
+            try
+            {
+                accesBD.SupprimerVaccination(ancienne);
+                accesBD.AjouterVaccination(nouvelle);
+            }
+            catch (ExceptionAccesBD ex)
+            {
+                throw new Exception($"Erreur modification vaccination: {ex.Message}", ex);
+            }
+        }
+
+        // recup la liste des vaccins dispo (pour le ComboBox)
+        public List<string> ObtenirListeVaccins()
+        {
+            try
+            {
+                return accesBD.ListeVaccins();
+            }
+            catch (ExceptionAccesBD ex)
+            {
+                throw new Exception($"Erreur lecture vaccins: {ex.Message}", ex);
+            }
+        }
+
+        // ============================================================
         // METHODES DE RECHERCHE
         // ============================================================
 

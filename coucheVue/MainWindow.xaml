@@ -39,7 +39,8 @@
                     <Button Content="Entree animal" Click="BtnArrivee_Click" Padding="10,5" Margin="0,0,10,0"/>
                     <Button Content="Sortie animal" Click="BtnSortie_Click" Padding="10,5" Margin="0,0,10,0"/>
                     <Button x:Name="btnModifier" Content="Modifier" Click="BtnModifier_Click" Padding="10,5" Margin="0,0,10,0" IsEnabled="False"/>
-                    <Button x:Name="btnSupprimer" Content="Supprimer" Click="BtnSupprimer_Click" Padding="10,5" IsEnabled="False"/>
+                    <Button x:Name="btnSupprimer" Content="Supprimer" Click="BtnSupprimer_Click" Padding="10,5" Margin="0,0,10,0" IsEnabled="False"/>
+                    <Button x:Name="btnVaccinations" Content="Vaccinations" Click="BtnVaccinations_Click" Padding="10,5" IsEnabled="False"/>
                 </StackPanel>
             </Grid>
         </TabItem>

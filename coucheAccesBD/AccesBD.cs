@@ -636,6 +636,33 @@ namespace RefugeAnimaux.coucheAccesBD
 
             return ligneAffectees;
         }
+        // supprime une vaccination (par cle primaire composite)
+        public int SupprimerVaccination(Vaccination vac)
+        {
+            int lignesAffectees = 0;
+            try
+            {
+                sqlConn.Open();
+                string query = "DELETE FROM VACCINATION WHERE vac_animal = @animal AND vac_vaccin = @vaccin AND vaccination_date = @date";
+                NpgsqlCommand cmd = new NpgsqlCommand(query, sqlConn);
+
+                cmd.Parameters.AddWithValue("@animal", vac.AnimalId);
+                cmd.Parameters.AddWithValue("@vaccin", vac.Vaccin);
+                cmd.Parameters.AddWithValue("@date", vac.Date);
+
+                lignesAffectees = cmd.ExecuteNonQuery();
+                cmd.Dispose();
+                sqlConn.Close();
+            }
+            catch (Exception ex)
+            {
+                if (sqlConn.State == System.Data.ConnectionState.Open)
+                    sqlConn.Close();
+                throw new ExceptionAccesBD("Erreur lors de la suppression d'une vaccination", ex.Message);
+            }
+            return lignesAffectees;
+        }
+
         //Liste vaccination de l animal
         public List<Vaccination> ListeVaccinationsAnimal(string animalId)
         {
@@ -1784,6 +1811,36 @@ namespace RefugeAnimaux.coucheAccesBD
                     sqlConn.Close();
             }
             return lignesAffectees;
+        }
+
+        // recup la liste des vaccins dispo dans la table VACCIN
+        public List<string> ListeVaccins()
+        {
+            List<string> vaccins = new List<string>();
+            try
+            {
+                sqlConn.Open();
+                string query = "SELECT nom FROM VACCIN ORDER BY nom";
+                NpgsqlCommand cmd = new NpgsqlCommand(query, sqlConn);
+
+                NpgsqlDataReader reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    string nom = reader.GetString(0);
+                    vaccins.Add(nom);
+                }
+
+                reader.Close();
+                cmd.Dispose();
+                sqlConn.Close();
+            }
+            catch (Exception ex)
+            {
+                if (sqlConn.State == System.Data.ConnectionState.Open)
+                    sqlConn.Close();
+                throw new ExceptionAccesBD("Erreur lors de la lecture des vaccins", ex.Message);
+            }
+            return vaccins;
         }
 
         // Vérifie si une adoption acceptée existe pour l'animal

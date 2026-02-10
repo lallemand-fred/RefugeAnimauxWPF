@@ -43,6 +43,7 @@ namespace RefugeAnimaux
             bool animalSelectionne = vueModele.AnimalSelectionne != null;
             btnModifier.IsEnabled = animalSelectionne;
             btnSupprimer.IsEnabled = animalSelectionne;
+            btnVaccinations.IsEnabled = animalSelectionne;
         }
 
         private void BtnArrivee_Click(object sender, RoutedEventArgs e)
@@ -133,6 +134,15 @@ namespace RefugeAnimaux
                     MessageBox.Show($"Erreur: {ex.Message}", "Erreur", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
+        }
+
+        private void BtnVaccinations_Click(object sender, RoutedEventArgs e)
+        {
+            if (vueModele.AnimalSelectionne == null) return;
+
+            var formulaire = new FormulaireVaccination(vueModele.AnimalSelectionne, vueModele);
+            formulaire.Owner = this;
+            formulaire.ShowDialog();
         }
 
         // ============================================================

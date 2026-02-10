@@ -110,6 +110,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="coucheVue\FormulaireVaccination.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -150,6 +154,10 @@
     </Compile>
     <Compile Include="coucheVue\FormulaireAdoption.xaml.cs">
       <DependentUpon>FormulaireAdoption.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="coucheVue\FormulaireVaccination.xaml.cs">
+      <DependentUpon>FormulaireVaccination.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
